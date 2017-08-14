@@ -11,14 +11,4 @@ module.exports = function(app) {
 
   app.get('/chat', checkAuth, require('./chat').get);
 
-	app.get('/doc', checkAuth, require('./doc').get);
-
-	app.get('/createDoc', checkAuth, require('./createDoc').get);
-
-	app.post('/createDoc', checkAuth, require('./createDoc').post);
-
-	app.get('/pad', checkAuth, require('./pad').get);
-
-
-
 };
