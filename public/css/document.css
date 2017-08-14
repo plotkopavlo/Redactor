@@ -1,0 +1,16 @@
+.collaboration--item{
+  width:100%;
+}
+
+.collaboration--link{
+  width: 100%;
+  min-height: 50px;
+
+  margin-bottom: 5px;
+
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
