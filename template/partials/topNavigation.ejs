@@ -1,0 +1,19 @@
+<nav class="navbar navbar-default" role="navigation">
+  <ul class="nav navbar-nav">
+    <li><a href="/">Главная</a></li>
+    <% if (user) { %>
+    <li><a href="/chat">Чат</a></li>
+    <li><a href="/doc">Документы</a></li>
+
+
+    <% } %>
+  </ul>
+  <ul class="nav navbar-nav navbar-right">
+    <% if (user) { %>
+    <li>
+      <form method="post" action="/logout"><button>Выйти </button></form>
+    <% } else { %>
+    <li><a href="/login">Войти</a></li>
+    <% } %>
+  </ul>
+</nav>

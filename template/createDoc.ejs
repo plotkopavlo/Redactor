@@ -1,0 +1,28 @@
+<% layout('layout/page') -%>
+<% block('title', "Создание документа") -%>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<div id="document">
+	<form action="/createDoc" method="post" class="create-doc" id="create-doc">
+		<label for="filename"> Названия файла</label>
+		<input type="text" name="filename">
+		<button>Создать</button>
+	</form>
+</div>
+
+<script>
+	$(document.forms['#create-doc']).on('submit', function() {
+		var form = $(this);
+
+
+		$.ajax({
+			url: "/createDoc",
+			method: "POST",
+			data: form.serialize()
+			}
+		);
+		return false;
+	});
+
+</script>

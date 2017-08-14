@@ -1,0 +1,107 @@
+<% layout('layout/page') -%>
+<% block('title', "Документ") -%>
+
+<script src="/socket.io/socket.io.js"></script>
+<link rel="stylesheet" href="/css/document.css"/>
+
+<a href="/createDoc">Создание документа</a>
+<div id="document">
+  <ul class="statusbar" id="statusbar">
+
+  </ul>
+  <div class="collaboration">
+    <h2>Collaboration</h2>
+    <ul class="collaboration--list" id="collaboration--list" >
+
+    </ul>
+  </div>
+  <div class="privat">
+    <ul class="privat--list" id = "privat--list" >
+
+    </ul>
+  </div>
+</div>
+
+<script>
+	var statusbar = document.getElementById('statusbar');
+	var listCol = document.getElementById('collaboration--list');
+	var listPr =document.getElementById( 'privat--list');
+
+	var socket = io.connect('/document', {
+		reconnect: false
+	});
+
+	socket
+
+		.on('newFile', function(files) {
+			//reWriteDocuments(files);
+			printStatus(username + " вышел из чата");
+		})
+		.on('connect', function() {
+			printStatus("соединение установлено");
+			socket.emit("connectDoc", function(files){
+				reWriteDocuments(files);
+      });
+			
+		})
+		.on('disconnect', function() {
+			printStatus("соединение потеряно");
+			setTimeout(reconnect, 500);
+		});
+
+
+
+		//return true;
+
+  
+	function reWriteDocuments(files){
+    listCol.innerHTML = "";
+		files.forEach(function(file, i, files) {
+			var li = document.createElement('li');
+			var a = document.createElement('a');
+			var divControl = document.createElement('div');
+			var divName = document.createElement('div');
+			var divIcon = document.createElement('div');
+
+			console.log(file);
+			divName.className ="collaboration--name";
+			divName.innerHTML=file.filename;
+
+			divControl.вни ="collaboration--data";
+			divControl.innerHTML=file.Change;
+
+			divIcon.className="collaboration-img";
+
+
+			a.className='collaboration--link';
+			a.href = 'pad/?filename=' + file.filename;
+
+			a.appendChild(divName);
+			a.appendChild(divControl);
+
+			li.setAttribute('id', file.filename);
+			li.className = 'collaboration--item';
+			li.appendChild(a);
+
+			listCol.appendChild(li)
+		});
+  }
+
+
+	function reconnect() {
+		socket.once('error', function() {
+			setTimeout(reconnect, 500);
+		});
+		socket.socket.connect();
+	}
+
+	function printStatus(status) {
+		console.log(status);
+		var li = $('<li>');
+		li.append($('<i>').text(status));
+		li.appendTo(statusbar);
+	}
+
+
+
+</script>

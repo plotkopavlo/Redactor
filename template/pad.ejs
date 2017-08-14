@@ -1,0 +1,99 @@
+<% layout('layout/page') -%>
+<% block('title', "Редактор") -%>
+
+<script src="/socket.io/socket.io.js"></script>
+<link rel="stylesheet" href="/css/pad.css"/>
+
+<div id="room"><ul class="list-unstyled"></ul>
+  <form class="row">
+    <textarea disabled  class="col-sm-8" id="pad" name="<%-fileName%>"><%-text%></textarea>
+    <div class="col-sm-4 control">
+      <div class="control--user-create">
+        <%-UserCreate%>
+      </div>
+      <div class="control--user" >
+        <ul class="list-users" id="list-users">
+				</ul>
+			</div>
+			<div class="control--notice" >
+				<ul class="list-notes" id="list-notice">
+				</ul>
+			</div>
+
+        </div>
+    </form>
+</div>
+
+<script>
+	var pad = document.getElementById('pad');
+	var listUsers = document.getElementById('list-users');
+	var listNotice = $('#list-notice');
+
+	var socket = io.connect('/pad', {
+		reconnect: false
+	});
+
+	socket
+		.on('padWrote', function(username, message) {
+			console.log('padWrote');
+			pad.value = message;
+		})
+		.on('leave', function(username) {
+			leaveUser(username);
+			printStatus(username + " вышел из чата");
+
+		})
+		.on('join', function(username) {
+			addUser(username);
+			printStatus(username + " вошёл в чат");
+		})
+		.on('connect', function() {
+			console.log(arguments);
+			printStatus("соединение установлено");
+			pad.onkeypress =  padWrote;
+			pad.removeAttribute('disabled');
+		})
+		.on('disconnect', function() {
+			printStatus("соединение потеряно");
+			pad.onkeypress = undefined;
+			pad.setAttribute('disabled', true);
+			setTimeout(reconnect, 500);
+		});
+
+	function padWrote(event) {
+		var text = pad.value + String.fromCharCode(event.which);
+		console.log(text);
+		socket.emit('padWrote',  text, pad.name, function() {
+			console.log('work');
+		});
+
+		//return true;
+	}
+	function addUser(username) {
+		var li = document.createElement('li');
+		li.setAttribute('id', username);
+		li.innerHTML=username;
+		listUsers.appendChild(li)
+		}
+	function leaveUser(username){
+		$('#'+username).remove();
+	}
+
+	function reconnect() {
+		socket.once('error', function() {
+			setTimeout(reconnect, 500);
+		});
+		socket.socket.connect();
+	}
+
+	function printStatus(status) {
+		var li = $('<li>');
+		li.append($('<i>').text(status));
+		li.appendTo(listNotice);
+	}
+
+	function printMessage(text) {
+		$('<li>').text(text).appendTo(ul);
+	}
+
+</script>
