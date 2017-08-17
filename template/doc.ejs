@@ -51,6 +51,7 @@
 
 
 
+
 		//return true;
 
   
@@ -61,17 +62,15 @@
 			var a = document.createElement('a');
 			var divControl = document.createElement('div');
 			var divName = document.createElement('div');
-			var divIcon = document.createElement('div');
+			var imgIcon = document.createElement('img');
+			var buttton = document.createElement('button');
 
 			console.log(file);
 			divName.className ="collaboration--name";
 			divName.innerHTML=file.filename;
 
-			divControl.вни ="collaboration--data";
+			divControl.className ="collaboration--data";
 			divControl.innerHTML=file.Change;
-
-			divIcon.className="collaboration-img";
-
 
 			a.className='collaboration--link';
 			a.href = 'pad/?filename=' + file.filename;
@@ -79,11 +78,28 @@
 			a.appendChild(divName);
 			a.appendChild(divControl);
 
+			imgIcon.className="collaboration--img";
+			imgIcon.src="/img/document--delete-icon.svg"
+
+			buttton.className = "collaboration--delet-button";
+			buttton.id =  "collaboration--delet-button";
+			buttton.setAttribute("filename", file.filename);
+
+			buttton.onclick = function () {
+				socket.emit('DeletFile', file.filename, function () {
+					document.getElementById(file.filename).remove();
+				});
+			}
+
+			buttton.appendChild(imgIcon);
+
 			li.setAttribute('id', file.filename);
 			li.className = 'collaboration--item';
 			li.appendChild(a);
+			li.appendChild(buttton);
 
-			listCol.appendChild(li)
+			listCol.appendChild(li);
+
 		});
   }
 

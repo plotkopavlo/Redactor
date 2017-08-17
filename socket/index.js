@@ -50,6 +50,8 @@ module.exports = function (server) {
 	io.set('origins', 'localhost:*');
 
 	io.use(function(socket, next) {
+
+
 		async.waterfall([
 			function(callback) {
 				try {
@@ -127,90 +129,15 @@ module.exports = function (server) {
 	});
 
 	//chat
-	io
-		.of('/chat')
-		.on('connection', function(socket, all) {
-		var username = socket.request.user.get('username');
-		socket.broadcast.emit('join', username);
 
-		socket.on('disconnect', function() {
-			socket.broadcast.emit('leave', username);
-		});
-
-		socket.on('message', function(text, cb) {
-			socket.broadcast.emit('message', username, text);
-			cb && cb();
-		});
-	});
 
 	//pad
- var UsersInPad = [];
-	io
-		.of('/pad')
-		.on('connection', function(socket, all) {
-			var username = socket.request.user.get('username');
-			UsersInPad.push(username);
-
-
-			socket.broadcast.emit('join', username);
-
-			socket.on('UserInPad', function (cb) {
-				cb(UsersInPad);
-			});
-			socket.on('disconnect', function() {
-				socket.broadcast.emit('leave', username);
-				var Users =  UsersInPad.filter(function (user) {
-					return !(user == username);
-				});
-				UsersInPad = Users;
-
-			});
-
-			socket.on('padWrote', function(text,filename, cb) {
-
-			if(filename != "test") {
-				File.findOneAndUpdate({filename: filename}, {
-					text: text,
-					UserChange: username,
-					Change: Date.now
-				}).then(function (file) {
-					socket.broadcast.emit('padWrote', username, text);
-					cb && cb();
-				}).catch(function (err) {
-					console.log(err);
-				});
-			}else{
-				socket.broadcast.emit('padWrote', username, text);
-				cb && cb();
-			}
-
-		});
-
-
-	});
+  require('./chat')(io);
+  require('./pad')(io);
+  require('./document')(io);
 
 	//doc
-	io
-		.of('document')
-		.on('connection', function(socket, all) {
 
-		socket.on('connectDoc', function (cb) {
-			File.find().then(function (files) {
-				var sendFiles = [];
-				files.forEach(function (file, i, files) {
-					var sendFile =  {
-						filename: file.filename,
-						UserCreate: file.UserCreate,
-						UserChange: file.UserChange,
-						Data: file.Date,
-						Change: file.Change
-					};
-					sendFiles.push(sendFile);
-				});
-				cb(sendFiles);
-			});
-		});
-	});
 
 
 	return io;

@@ -42,12 +42,12 @@
 		})
 		.on('leave', function(username) {
 			leaveUser(username);
-			printStatus(username + " вышел из чата");
+			printStatus(username + " вышел из редактора");
 
 		})
 		.on('join', function(username) {
 			addUser(username);
-			printStatus(username + " вошёл в чат");
+			printStatus(username + " вошёл в редактор");
 		})
 		.on('connect', function(data) {
 			printStatus("соединение установлено");
