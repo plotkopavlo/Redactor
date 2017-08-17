@@ -89,15 +89,12 @@ module.exports = function (server) {
 
 		], function(err) {
 			if (!err) {
-				console.log("Not Error");
 				return next();
 			}
 
 			if (err) {
-				console.log("Error");
 				return next(err);
 			}
-			console.log("Error1");
 			return next(err);
 		});
 
@@ -147,16 +144,26 @@ module.exports = function (server) {
 	});
 
 	//pad
-
+ var UsersInPad = [];
 	io
 		.of('/pad')
 		.on('connection', function(socket, all) {
 			var username = socket.request.user.get('username');
+			UsersInPad.push(username);
+
 
 			socket.broadcast.emit('join', username);
 
+			socket.on('UserInPad', function (cb) {
+				cb(UsersInPad);
+			});
 			socket.on('disconnect', function() {
 				socket.broadcast.emit('leave', username);
+				var Users =  UsersInPad.filter(function (user) {
+					return !(user == username);
+				});
+				UsersInPad = Users;
+
 			});
 
 			socket.on('padWrote', function(text,filename, cb) {

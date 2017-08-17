@@ -9,13 +9,15 @@
     <textarea disabled  class="col-sm-8" id="pad" name="<%-fileName%>"><%-text%></textarea>
     <div class="col-sm-4 control">
       <div class="control--user-create">
-        <%-UserCreate%>
+				<p class="control--title">User Create </p> : <%-UserCreate%>
       </div>
       <div class="control--user" >
+				<p class="control--title">Now in room: </p>
         <ul class="list-users" id="list-users">
 				</ul>
 			</div>
 			<div class="control--notice" >
+				<p class="control--title">Notice: </p>
 				<ul class="list-notes" id="list-notice">
 				</ul>
 			</div>
@@ -47,18 +49,26 @@
 			addUser(username);
 			printStatus(username + " вошёл в чат");
 		})
-		.on('connect', function() {
-			console.log(arguments);
+		.on('connect', function(data) {
 			printStatus("соединение установлено");
 			pad.onkeypress =  padWrote;
 			pad.removeAttribute('disabled');
+			socket.emit('UserInPad', function (users) {
+				users.forEach(function (user, i, users) {
+					addUser(user);
+				});
+			});
 		})
 		.on('disconnect', function() {
 			printStatus("соединение потеряно");
 			pad.onkeypress = undefined;
 			pad.setAttribute('disabled', true);
 			setTimeout(reconnect, 500);
+		})
+		.on('allUsersInPad', function (data) {
+			console.log(data);
 		});
+
 
 	function padWrote(event) {
 		var text = pad.value + String.fromCharCode(event.which);
@@ -71,12 +81,14 @@
 	}
 	function addUser(username) {
 		var li = document.createElement('li');
-		li.setAttribute('id', username);
-		li.innerHTML=username;
-		listUsers.appendChild(li)
+		if( !document.getElementById(username)) {
+			li.setAttribute('id', username);
+			li.innerHTML = username;
+			listUsers.appendChild(li)
+		}
 		}
 	function leaveUser(username){
-		$('#'+username).remove();
+		document.getElementById(username).remove();
 	}
 
 	function reconnect() {
