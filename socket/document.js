@@ -23,6 +23,7 @@ module.exports = function (io) {
 			});
 
 			socket.on('DeletFile', function (filename ,cb) {
+
 				File.findOneAndRemove({filename: filename}).then( function () {
 					cb();
 				})
